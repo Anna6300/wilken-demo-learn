@@ -1,0 +1,12 @@
+{
+  "name": "portal-e2e-testcafe",
+  "private": true,
+  "description": "TestCafe E2E tests for the customer portal (JavaScript part of the QA stack)",
+  "scripts": {
+    "test": "testcafe chrome:headless tests/ --reporter spec,xunit:reports/testcafe-junit.xml"
+  },
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "testcafe": "^3.7.0"
+  }
+}

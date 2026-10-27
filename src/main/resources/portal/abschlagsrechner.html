@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Kundenportal – Abschlagsrechner</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+        label { display: block; margin-top: 12px; }
+        input, select, button { font-size: 16px; padding: 6px; margin-top: 4px; }
+        #result { margin-top: 20px; font-size: 20px; font-weight: bold; }
+        #error { margin-top: 20px; color: #b00020; }
+    </style>
+</head>
+<body>
+<h1>Abschlagsrechner</h1>
+
+<label for="tariff">Tarif</label>
+<select id="tariff" data-testid="tariff">
+    <option value="basis">Strom Basis (150 €/Jahr, 32 ct/kWh)</option>
+    <option value="oeko">Strom Öko (180 €/Jahr, 35 ct/kWh)</option>
+</select>
+
+<label for="consumption">Jahresverbrauch (kWh)</label>
+<input id="consumption" data-testid="consumption" type="number" min="0" value="3500">
+
+<div><button id="calculate" data-testid="calculate">Berechnen</button></div>
+
+<div id="result" data-testid="result"></div>
+<div id="error" data-testid="error" role="alert"></div>
+
+<script>
+    // Same rules as BillingService.java: amounts in cents to avoid floating point errors.
+    const TARIFFS = {
+        basis: { baseCents: 15000, energyCentsPerKwh: 32 },
+        oeko:  { baseCents: 18000, energyCentsPerKwh: 35 }
+    };
+    const VAT = 0.19;
+
+    document.getElementById('calculate').addEventListener('click', () => {
+        const result = document.getElementById('result');
+        const error = document.getElementById('error');
+        result.textContent = '';
+        error.textContent = '';
+
+        const raw = document.getElementById('consumption').value;
+        const kwh = Number(raw);
+        if (raw === '' || !Number.isFinite(kwh) || kwh < 0) {
+            error.textContent = 'Bitte einen gültigen Verbrauch eingeben.';
+            return;
+        }
+        const t = TARIFFS[document.getElementById('tariff').value];
+        const netCents = Math.round(t.baseCents + kwh * t.energyCentsPerKwh);
+        const grossCents = netCents + Math.round(netCents * VAT);
+        const monthlyEuro = Math.ceil(grossCents / 12 / 100);
+        result.textContent = `Monatlicher Abschlag: ${monthlyEuro} €`;
+    });
+</script>
+</body>
+</html>
